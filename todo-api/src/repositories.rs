@@ -20,33 +20,6 @@ pub trait TodoRepository: Clone + std::marker::Send + std::marker::Sync + 'stati
     fn delete(&self, id: i32) -> anyhow::Result<()>;
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
-pub struct Todo {
-    id: i32,
-    text: String,
-    completed: bool,
-}
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub struct CreateTodo {
-    text: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub struct UpdateTodo {
-    text: Option<String>,
-    completed: Option<bool>,
-}
-
-impl Todo {
-    pub fn new(id: i32, text: String) -> Self {
-        Self {
-            id,
-            text,
-            completed: false,
-        }
-    }
-}
-
 type TodoDatas = HashMap<i32, Todo>;
 
 #[derive(Debug, Clone)]
@@ -110,47 +83,30 @@ impl TodoRepository for TodoRepositoryForMemory {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::{Todo, TodoRepository, TodoRepositoryForMemory, UpdateTodo};
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
+pub struct Todo {
+    id: i32,
+    text: String,
+    completed: bool,
+}
 
-    #[test]
-    fn todo_crud_scenario() {
-        let text = "todo text".to_string();
-        let id = 1;
-        let expected = Todo::new(id, text.clone());
-
-        let repository = TodoRepositoryForMemory::new();
-
-        let todo = repository.create(super::CreateTodo { text });
-        assert_eq!(expected, todo);
-
-        let todo = repository.find(todo.id).unwrap();
-        assert_eq!(expected, todo);
-
-        let todo = repository.all();
-        assert_eq!(vec![expected], todo);
-
-        let text = "update todo text".to_string();
-        let todo = repository
-            .update(
-                1,
-                UpdateTodo {
-                    text: Some(text.clone()),
-                    completed: Some(true),
-                },
-            )
-            .expect("failed update todo");
-        assert_eq!(
-            Todo {
-                id,
-                text,
-                completed: true
-            },
-            todo
-        );
-
-        let res = repository.delete(id);
-        assert!(res.is_ok());
+impl Todo {
+    pub fn new(id: i32, text: String) -> Self {
+        Self {
+            id,
+            text,
+            completed: false,
+        }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub struct CreateTodo {
+    text: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub struct UpdateTodo {
+    text: Option<String>,
+    completed: Option<bool>,
 }

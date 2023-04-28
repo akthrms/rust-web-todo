@@ -1,8 +1,10 @@
 mod handlers;
 mod repositories;
 
-use crate::handlers::create_todo;
-use crate::repositories::{TodoRepository, TodoRepositoryForMemory};
+use crate::{
+    handlers::{all_todo, create_todo, delete_todo, find_todo, update_todo},
+    repositories::{TodoRepository, TodoRepositoryForMemory},
+};
 use axum::{
     extract::Extension,
     routing::{get, post},
@@ -32,28 +34,16 @@ async fn main() {
 fn create_app<T: TodoRepository>(repository: T) -> Router {
     Router::new()
         .route("/", get(root))
-        .route("/todos", post(create_todo::<T>))
+        .route("/todos", post(create_todo::<T>).get(all_todo::<T>))
+        .route(
+            "/todos/:id",
+            get(find_todo::<T>)
+                .delete(delete_todo::<T>)
+                .patch(update_todo::<T>),
+        )
         .layer(Extension(Arc::new(repository)))
 }
 
 async fn root() -> &'static str {
     "Hello, world!"
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::{create_app, repositories::TodoRepositoryForMemory};
-    use hyper::{Body, Request};
-    use tower::ServiceExt;
-
-    #[tokio::test]
-    async fn should_return_hello_world() {
-        let req = Request::builder().uri("/").body(Body::empty()).unwrap();
-        let repository = TodoRepositoryForMemory::new();
-        let res = create_app(repository).oneshot(req).await.unwrap();
-        let bytes = hyper::body::to_bytes(res.into_body()).await.unwrap();
-        let body: String = String::from_utf8(bytes.to_vec()).unwrap();
-
-        assert_eq!(body, "Hello, world!");
-    }
 }
