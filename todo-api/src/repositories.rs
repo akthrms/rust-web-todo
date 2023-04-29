@@ -66,12 +66,10 @@ impl TodoRepository for TodoRepositoryForMemory {
     fn update(&self, id: i32, payload: UpdateTodo) -> anyhow::Result<Todo> {
         let mut store = self.write_store_ref();
         let todo = store.get(&id).context(RepositoryError::NotFound(id))?;
-        let text = payload.text.unwrap_or_else(|| todo.text.clone());
-        let completed = payload.completed.unwrap_or(todo.completed);
         let todo = Todo {
             id,
-            text,
-            completed,
+            text: payload.text.unwrap_or_else(|| todo.text.clone()),
+            completed: payload.completed.unwrap_or(todo.completed),
         };
         store.insert(id, todo.clone());
         Ok(todo)

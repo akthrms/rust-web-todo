@@ -14,23 +14,23 @@ pub async fn create_todo<T: TodoRepository>(
     ValidatedJson(payload): ValidatedJson<CreateTodo>,
     Extension(repository): Extension<Arc<T>>,
 ) -> impl IntoResponse {
-    let todo = repository.create(payload);
-    (StatusCode::CREATED, Json(todo))
+    (StatusCode::CREATED, Json(repository.create(payload)))
 }
 
 pub async fn find_todo<T: TodoRepository>(
     Path(id): Path<i32>,
     Extension(repository): Extension<Arc<T>>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let todo = repository.find(id).ok_or(StatusCode::NOT_FOUND)?;
-    Ok((StatusCode::OK, Json(todo)))
+    Ok((
+        StatusCode::OK,
+        Json(repository.find(id).ok_or(StatusCode::NOT_FOUND)?),
+    ))
 }
 
 pub async fn all_todo<T: TodoRepository>(
     Extension(repository): Extension<Arc<T>>,
 ) -> impl IntoResponse {
-    let todo = repository.all();
-    (StatusCode::OK, Json(todo))
+    (StatusCode::OK, Json(repository.all()))
 }
 
 pub async fn update_todo<T: TodoRepository>(
@@ -38,10 +38,14 @@ pub async fn update_todo<T: TodoRepository>(
     ValidatedJson(payload): ValidatedJson<UpdateTodo>,
     Extension(repository): Extension<Arc<T>>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let todo = repository
-        .update(id, payload)
-        .or(Err(StatusCode::NOT_FOUND))?;
-    Ok((StatusCode::CREATED, Json(todo)))
+    Ok((
+        StatusCode::CREATED,
+        Json(
+            repository
+                .update(id, payload)
+                .or(Err(StatusCode::NOT_FOUND))?,
+        ),
+    ))
 }
 
 pub async fn delete_todo<T: TodoRepository>(
@@ -68,13 +72,19 @@ where
 
     async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
         let Json(value) = Json::<T>::from_request(req).await.map_err(|rejection| {
-            let message = format!("Json parse error: [{}]", rejection);
-            (StatusCode::BAD_REQUEST, message)
+            (
+                StatusCode::BAD_REQUEST,
+                format!("Json parse error: [{}]", rejection),
+            )
         })?;
+
         value.validate().map_err(|rejection| {
-            let message = format!("Validation error: [{}]", rejection).replace('\n', ", ");
-            (StatusCode::BAD_REQUEST, message)
+            (
+                StatusCode::BAD_REQUEST,
+                format!("Validation error: [{}]", rejection).replace('\n', ", "),
+            )
         })?;
+
         Ok(ValidatedJson(value))
     }
 }
