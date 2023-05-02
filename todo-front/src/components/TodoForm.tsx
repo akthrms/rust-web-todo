@@ -1,6 +1,6 @@
+import { Box, Button, Grid, Paper, TextField } from "@mui/material";
 import { FC, useState } from "react";
 import { NewTodoPayload } from "../types/todo";
-import { Box, Button, Grid, Paper, TextField } from "@mui/material";
 
 type Props = {
   onSubmit: (newTodo: NewTodoPayload) => void;

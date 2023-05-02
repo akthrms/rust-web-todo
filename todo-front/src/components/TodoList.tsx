@@ -1,6 +1,6 @@
+import { Card, Checkbox, Stack, Typography } from "@mui/material";
 import { FC } from "react";
 import { Todo } from "../types/todo";
-import { Card, Checkbox, Stack, Typography } from "@mui/material";
 
 type Props = {
   todos: Todo[];
