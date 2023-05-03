@@ -4,7 +4,12 @@ import "modern-css-reset";
 import { FC, useEffect, useState } from "react";
 import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
-import { addTodoItem, getTodoItems } from "./lib/api/todo";
+import {
+  addTodoItem,
+  deleteTodoItem,
+  getTodoItems,
+  updateTodoItem,
+} from "./lib/api/todo";
 import { NewTodoPayload, Todo } from "./types/todo";
 
 const TodoApp: FC = () => {
@@ -19,16 +24,16 @@ const TodoApp: FC = () => {
     setTodos(todos);
   };
 
-  const onUpdate = (updateTodo: Todo) => {
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id === updateTodo.id) {
-          return { ...todo, ...updateTodo };
-        } else {
-          return todo;
-        }
-      })
-    );
+  const onUpdate = async (updateTodo: Todo) => {
+    await updateTodoItem(updateTodo);
+    const todos = await getTodoItems();
+    setTodos(todos);
+  };
+
+  const onDelete = async (id: number) => {
+    await deleteTodoItem(id);
+    const todos = await getTodoItems();
+    setTodos(todos);
   };
 
   useEffect(() => {
@@ -67,7 +72,7 @@ const TodoApp: FC = () => {
         <Box maxWidth={700} width="100%">
           <Stack spacing={5}>
             <TodoForm onSubmit={onSubmit} />
-            <TodoList todos={todos} onUpdate={onUpdate} />
+            <TodoList todos={todos} onUpdate={onUpdate} onDelete={onDelete} />
           </Stack>
         </Box>
       </Box>
