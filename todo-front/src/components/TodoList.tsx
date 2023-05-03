@@ -1,15 +1,16 @@
 import { Stack, Typography } from "@mui/material";
 import { FC } from "react";
-import { Todo } from "../types/todo";
+import { Label, Todo, UpdateTodoPayload } from "../types/todo";
 import TodoItem from "./TodoItem";
 
 type Props = {
   todos: Todo[];
-  onUpdate: (todo: Todo) => void;
+  labels: Label[];
+  onUpdate: (todo: UpdateTodoPayload) => void;
   onDelete: (id: number) => void;
 };
 
-const TodoList: FC<Props> = ({ todos, onUpdate, onDelete }) => {
+const TodoList: FC<Props> = ({ todos, labels, onUpdate, onDelete }) => {
   return (
     <Stack spacing={2}>
       <Typography variant="h2">todo list</Typography>
@@ -18,6 +19,7 @@ const TodoList: FC<Props> = ({ todos, onUpdate, onDelete }) => {
           <TodoItem
             key={todo.id}
             todo={todo}
+            labels={labels}
             onUpdate={onUpdate}
             onDelete={onDelete}
           />

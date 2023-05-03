@@ -5,6 +5,6 @@ create table labels (
 
 create table todo_labels (
     id serial primary key,
-    todo_id integer not null preferences todos (id) deferrable initially deferred,
-    label_id integer not null preferences todos (id) deferrable initially deferred,
+    todo_id integer not null references todos (id) deferrable initially deferred,
+    label_id integer not null references labels (id) deferrable initially deferred
 );

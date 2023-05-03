@@ -61,8 +61,8 @@ impl TodoRepository for TodoRepositoryForDb {
             sqlx::query_as::<_, TodoWithLabelFromRow>(
                 r#"
                     select todos.*, labels.id as label_id, labels.name as label_name from todos
-                    left outer join todo_labels t1 on todos.id = t1.todo_id
-                    left outer join labels on labels.id = t1.label_id
+                    left outer join todo_labels on todos.id = todo_labels.todo_id
+                    left outer join labels on labels.id = todo_labels.label_id
                     where todos.id = $1
                 "#,
             )
