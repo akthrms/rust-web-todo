@@ -30,20 +30,17 @@ const TodoApp: FC = () => {
       return;
     }
     await addTodoItem(payload);
-    const todos = await getTodoItems();
-    setTodos(todos);
+    setTodos(await getTodoItems());
   };
 
   const onUpdate = async (updateTodo: UpdateTodoPayload) => {
     await updateTodoItem(updateTodo);
-    const todos = await getTodoItems();
-    setTodos(todos);
+    setTodos(await getTodoItems());
   };
 
   const onDelete = async (id: number) => {
     await deleteTodoItem(id);
-    const todos = await getTodoItems();
-    setTodos(todos);
+    setTodos(await getTodoItems());
   };
 
   const onSelectLabel = (label: Label | null) => {
@@ -52,8 +49,7 @@ const TodoApp: FC = () => {
 
   const onSubmitNewLabel = async (newLabel: NewLabelPayload) => {
     if (!labels.some((label) => label.name === newLabel.name)) {
-      const res = await addLabelItem(newLabel);
-      setLabels([...labels, res]);
+      setLabels([...labels, await addLabelItem(newLabel)]);
     }
   };
 
@@ -70,11 +66,8 @@ const TodoApp: FC = () => {
 
   useEffect(() => {
     (async () => {
-      const todos = await getTodoItems();
-      setTodos(todos);
-
-      const labelResponse = await getLabelItems();
-      setLabels(labelResponse);
+      setTodos(await getTodoItems());
+      setLabels(await getLabelItems());
     })();
   }, []);
 
